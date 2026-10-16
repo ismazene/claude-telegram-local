@@ -1,0 +1,8 @@
+.env
+access.json
+inbox/
+approved/
+__pycache__/
+*.ogg
+*.oga
+*.mp4
