@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 
+from tgmedia import server
 from tgmedia.audio import transcribe
 from tgmedia.video import extract_frames
 
@@ -24,11 +25,19 @@ def main(argv: list[str] | None = None) -> int:
     f.add_argument("--every", type=float, default=3.0, help="seconds between frames")
     f.add_argument("--max-frames", type=int, default=8)
 
+    s = sub.add_parser("serve", help="keep the model loaded and answer `transcribe` calls fast")
+    s.add_argument("--model", default="small")
+
     args = parser.parse_args(argv)
-    sys.stdout.reconfigure(encoding="utf-8")
+    if sys.stdout:  # pythonw has no stdout
+        sys.stdout.reconfigure(encoding="utf-8")
     try:
-        if args.command == "transcribe":
-            result = transcribe(args.file, args.model, args.language)
+        if args.command == "serve":
+            server.serve(args.model)
+        elif args.command == "transcribe":
+            result = server.remote_transcribe(args.file, args.model, args.language) or transcribe(
+                args.file, args.model, args.language
+            )
             print(f"[{result.language}] {result.text}")
         else:
             for frame in extract_frames(args.file, args.out_dir, args.every, args.max_frames):

@@ -33,6 +33,12 @@ $ tgmedia transcribe voice.oga
 
 The language detector can mislabel mixed Galician and Spanish speech, but the text stays correct. Pass `--language es` to force it.
 
+Keep the model loaded between calls (about 7 s faster per audio on a CPU laptop; `transcribe` falls back to local loading if the server is not running):
+
+```bash
+tgmedia serve   # listens on 127.0.0.1:8765, unauthenticated; do not expose
+```
+
 As a library:
 
 ```python

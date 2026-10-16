@@ -6,6 +6,7 @@ import subprocess
 import sys
 import types
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 
@@ -36,6 +37,7 @@ def decode_audio(path: str) -> np.ndarray:
     return np.frombuffer(proc.stdout, np.int16).astype(np.float32) / 32768.0
 
 
+@lru_cache(maxsize=2)
 def _load_model(name: str):
     # faster-whisper imports PyAV, whose DLL can be blocked by Windows App Control.
     # We decode with ffmpeg ourselves, so a stub is enough when PyAV is unusable.

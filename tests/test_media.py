@@ -68,3 +68,21 @@ def test_extract_frames_validates_arguments(video, tmp_path, every, max_frames):
 def test_cli_reports_errors_without_traceback(tmp_path, capsys):
     assert cli.main(["transcribe", str(tmp_path / "missing.ogg")]) == 1
     assert "error:" in capsys.readouterr().err
+
+
+def test_warm_server_roundtrip_and_fallback(tone, monkeypatch):
+    import threading
+    from http.server import HTTPServer
+
+    from tgmedia import server
+
+    monkeypatch.setattr(audio, "transcribe", lambda p, m, l: audio.Transcript("es", f"ok {m}"))
+    assert server.remote_transcribe(tone, "small", None, port=8799) is None  # nothing listening yet
+    httpd = HTTPServer((server.HOST, 8799), server._Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        assert server.remote_transcribe(tone, "base", None, port=8799) == audio.Transcript("es", "ok base")
+        with pytest.raises(RuntimeError):
+            server.remote_transcribe(tone + ".missing", "base", None, port=8799)
+    finally:
+        httpd.shutdown()
