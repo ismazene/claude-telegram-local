@@ -24,6 +24,15 @@ tgmedia transcribe talk.mp4 --model medium    # larger model, better accuracy
 tgmedia frames clip.mp4 out/ --every 3 --max-frames 8
 ```
 
+Real output, transcribing a Telegram voice note recorded in Spanish:
+
+```text
+$ tgmedia transcribe voice.oga
+[gl] Quero que crees unha carpeta en el escritorio que se llame Hola e dentro pongas un Hola Mundo en HTML y CSS.
+```
+
+The language detector can mislabel mixed Galician and Spanish speech, but the text stays correct. Pass `--language es` to force it.
+
 As a library:
 
 ```python
